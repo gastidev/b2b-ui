@@ -14,8 +14,9 @@ export function AccountsView({
   accounts,
   searchTerm,
   setSearchTerm,
-  showAddDialog,
-  setShowAddDialog,
+  onAddClick,
+  onEditClick,
+  onDeleteClick,
 }: AccountsViewProps) {
   const totalInitialBalance = accounts.reduce(
     (sum, account) => sum + account.initial_balance,
@@ -50,7 +51,7 @@ export function AccountsView({
             </Button>
             <Button
               className='flex-1 sm:flex-none'
-              onClick={() => setShowAddDialog(true)}
+              onClick={onAddClick}
             >
               <Plus className='mr-2 h-4 w-4' />
               Agregar cuenta

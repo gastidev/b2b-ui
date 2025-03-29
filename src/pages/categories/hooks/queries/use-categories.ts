@@ -1,14 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '../../services/get-categories';
-import { Category } from '../../domain/types/category';
+import { Category } from '../../domain/types';
 
-interface CategoriesResponse {
-  categories: Category[];
-  isEmpty: boolean;
-}
+export type CategoriesResponse = Category[];
 
 export const useCategories = () => {
-  return useQuery<Category[], unknown, CategoriesResponse>({
+  return useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
     select: (data) => ({

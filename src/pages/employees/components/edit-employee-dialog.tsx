@@ -17,7 +17,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { departments } from '@/lib/data';
-import { EmployeeFormData } from '../hooks/use-employees';
+
+interface EmployeeFormData {
+  name: string;
+  email: string;
+  phone: string;
+  alias: string;
+  cbu: string;
+  department_id: string;
+}
 
 interface EditEmployeeDialogProps {
   open: boolean;

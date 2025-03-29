@@ -19,8 +19,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { departments, Employee } from '@/lib/data';
+import { departments } from '@/lib/data';
 import { updateEmployee } from '../../services/employees.service';
+
+interface Profile {
+  first_name: string;
+  last_name: string;
+}
+
+interface User {
+  id: string;
+  email: string;
+  profile?: Profile;
+}
+
+interface Employee {
+  id: string;
+  user: User;
+  department_id?: string;
+  role?: string;
+}
 
 interface EditEmployeeDialogProps {
   open: boolean;
@@ -31,7 +49,13 @@ interface EditEmployeeDialogProps {
 
 // Hook interno del componente
 function useEditEmployee(companyId?: string) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    first_name: string;
+    last_name: string;
+    email: string;
+    department_id: string | undefined;
+    role: string;
+  }>({
     first_name: '',
     last_name: '',
     email: '',
@@ -54,7 +78,7 @@ function useEditEmployee(companyId?: string) {
   const handleDepartmentChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      department_id: value === 'none' ? null : value,
+      department_id: value === 'none' ? undefined : value,
     }));
   };
 

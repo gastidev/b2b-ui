@@ -32,6 +32,7 @@ const formSchema = z.object({
       10,
       'La descripción debe tener al menos 10 caracteres'
     ),
+  company_id: z.string(),
 });
 
 interface CreateDepartmentDialogProps {
@@ -46,6 +47,7 @@ export function CreateDepartmentDialog({
     defaultValues: {
       name: '',
       description: '',
+      company_id: companyId,
     },
   });
 

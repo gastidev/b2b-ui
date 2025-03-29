@@ -176,7 +176,7 @@ export function EmployeeFormDialog({
                       {departments.map((department) => (
                         <SelectItem
                           key={department.id}
-                          value={department.id}
+                          value={department.id!}
                         >
                           {department.name}
                         </SelectItem>

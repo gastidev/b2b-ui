@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Department } from '../services/departments.service';
-import { DepartmentFormData } from './use-departments-mutations';
+import { Department, Employee } from '@/lib/data';
 
-const initialFormData: DepartmentFormData = {
-  name: '',
-};
+interface DepartmentFormData {
+  name: string;
+  collaborators: Employee[];
+}
 
 export function useDepartmentsDialogs() {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -12,10 +12,13 @@ export function useDepartmentsDialogs() {
     useState(false);
   const [showDeleteDialog, setShowDeleteDialog] =
     useState(false);
-  const [formData, setFormData] =
-    useState<DepartmentFormData>(initialFormData);
   const [selectedDepartment, setSelectedDepartment] =
     useState<Department | null>(null);
+  const [formData, setFormData] =
+    useState<DepartmentFormData>({
+      name: '',
+      collaborators: [],
+    });
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -24,9 +27,12 @@ export function useDepartmentsDialogs() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const openEditDialog = (department: Department) => {
+  const handleEditDepartment = (department: Department) => {
     setSelectedDepartment(department);
-    setFormData({ name: department.name });
+    setFormData({
+      name: department.name,
+      collaborators: [],
+    });
     setShowEditDialog(true);
   };
 
@@ -40,7 +46,10 @@ export function useDepartmentsDialogs() {
     setShowEditDialog(false);
     setShowDeleteDialog(false);
     setSelectedDepartment(null);
-    setFormData(initialFormData);
+    setFormData({
+      name: '',
+      collaborators: [],
+    });
   };
 
   return {
@@ -53,7 +62,7 @@ export function useDepartmentsDialogs() {
     formData,
     selectedDepartment,
     handleInputChange,
-    openEditDialog,
+    handleEditDepartment,
     openDeleteDialog,
     resetDialogs,
   };

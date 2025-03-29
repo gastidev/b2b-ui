@@ -1,4 +1,5 @@
 export interface CreateCategoryDTO {
+  company_id: string;
   name: string;
   description: string;
   icon: string;

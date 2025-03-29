@@ -13,16 +13,16 @@ export interface Profile {
 
 export interface User {
   id: string;
+  profile: Profile;
   email: string;
-  phone?: string;
+  role: string;
+  phone: string;
   company_id?: string;
-
-  profile?: Profile | null;
 }
 
 export interface Session {
-  user: User;
   token: string;
+  user: User;
 }
 
 export const TOKEN_KEY = 'authorization';

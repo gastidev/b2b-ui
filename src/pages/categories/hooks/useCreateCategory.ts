@@ -2,16 +2,21 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { categoriesService } from '../services/categories.service';
-import { CreateCategoryDTO } from '../domain/types/category.types';
+import { createCategory } from '../services/get-categories';
 import { toast } from 'sonner';
+import { CreateCategoryDTO } from '../domain/types/category';
 
 export const useCreateCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: CreateCategoryDTO) =>
-      categoriesService.create(data),
+      createCategory({
+        company_id: data.company_id,
+        name: data.name,
+        icon: data.icon,
+        color: data.color,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['categories'],
@@ -19,11 +24,11 @@ export const useCreateCategory = () => {
       toast.success('Categoría creada exitosamente');
     },
     onError: (error) => {
-      toast.error(
+      const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Error al crear la categoría'
-      );
+          : 'Error al crear la categoría';
+      toast.error(errorMessage);
     },
   });
 };

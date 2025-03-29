@@ -14,8 +14,7 @@ export function BudgetsView({
   budgets,
   searchTerm,
   setSearchTerm,
-  showAddDialog,
-  setShowAddDialog,
+  onAddClick,
 }: BudgetsViewProps) {
   const totalInitialAmount = budgets.reduce(
     (sum, budget) => sum + budget.initial_amount,
@@ -51,7 +50,7 @@ export function BudgetsView({
             </Button>
             <Button
               className='flex-1 sm:flex-none'
-              onClick={() => setShowAddDialog(true)}
+              onClick={onAddClick}
             >
               <Plus className='mr-2 h-4 w-4' />
               Agregar presupuesto

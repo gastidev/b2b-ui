@@ -1,31 +1,34 @@
+import { gastiClient } from '@/lib/api';
 import { Budget } from '../domain/types';
-import { budgets as mockBudgets } from '@/lib/data';
 
-class BudgetsService {
-  getBudgets(): Budget[] {
-    // Por ahora usamos datos mock, pero aquí se conectaría con la API
-    return mockBudgets;
-  }
+export const budgetsService = {
+  async getBudgets(): Promise<Budget[]> {
+    const { data } = await gastiClient.get<{
+      data: Budget[];
+    }>('/budgets');
+    return data.data;
+  },
 
   async createBudget(
     budget: Omit<Budget, 'id'>
   ): Promise<Budget> {
-    // Aquí iría la lógica para crear un presupuesto en el backend
-    throw new Error('Not implemented');
-  }
+    const { data } = await gastiClient.post<{
+      data: Budget;
+    }>('/budgets', budget);
+    return data.data;
+  },
 
   async updateBudget(
     id: string,
     budget: Partial<Budget>
   ): Promise<Budget> {
-    // Aquí iría la lógica para actualizar un presupuesto en el backend
-    throw new Error('Not implemented');
-  }
+    const { data } = await gastiClient.patch<{
+      data: Budget;
+    }>(`/budgets/${id}`, budget);
+    return data.data;
+  },
 
   async deleteBudget(id: string): Promise<void> {
-    // Aquí iría la lógica para eliminar un presupuesto en el backend
-    throw new Error('Not implemented');
-  }
-}
-
-export const budgetsService = new BudgetsService();
+    await gastiClient.delete(`/budgets/${id}`);
+  },
+};

@@ -22,10 +22,9 @@ import {
   Plus,
   Search,
 } from 'lucide-react';
-import { FilterPanel } from './FilterPanel';
+import { FilterPanel } from '@/components/filter-panel';
 
 export function TransactionsView({
-  transactions,
   searchTerm,
   setSearchTerm,
   filterGroup,
@@ -98,10 +97,13 @@ export function TransactionsView({
                     </SheetHeader>
                     <div className='mt-4'>
                       <FilterPanel
-                        transactions={transactions}
-                        filterGroup={filterGroup}
                         onFilterChange={setFilterGroup}
                         show={true}
+                        transactions={[]}
+                        filterGroup={{
+                          filters: [],
+                          operator: 'AND',
+                        }}
                       />
                     </div>
                   </SheetContent>

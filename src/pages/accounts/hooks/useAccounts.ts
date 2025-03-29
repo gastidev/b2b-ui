@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { accounts as mockAccounts } from '@/lib/data';
 import { accountsService } from '../services/accounts.service';
 
 export function useAccounts() {

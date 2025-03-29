@@ -12,6 +12,5 @@ export interface BudgetsViewProps {
   budgets: Budget[];
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  showAddDialog: boolean;
-  setShowAddDialog: (show: boolean) => void;
+  onAddClick: () => void;
 }

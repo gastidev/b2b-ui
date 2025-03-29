@@ -9,8 +9,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Employee } from '../../domain/types';
 import { deleteEmployee } from '../../services/employees.service';
+
+interface Profile {
+  first_name: string;
+  last_name: string;
+}
+
+interface User {
+  id: string;
+  email: string;
+  profile?: Profile;
+}
+
+interface Employee {
+  id: string;
+  user: User;
+  department_id?: string;
+  role?: string;
+}
 
 interface DeleteEmployeeDialogProps {
   open: boolean;
@@ -27,21 +44,15 @@ export function DeleteEmployeeDialog({
 }: DeleteEmployeeDialogProps) {
   const queryClient = useQueryClient();
 
-  const handleConfirm = async () => {
+  const handleDelete = async () => {
     if (!employee || !companyId) return;
-
     try {
-      await deleteEmployee({
-        companyId,
-        employeeId: employee.id,
-      });
-
+      await deleteEmployee(companyId, employee.id);
       queryClient.invalidateQueries({
         queryKey: ['employees', companyId],
       });
-
-      toast.success('Colaborador eliminado exitosamente');
       onOpenChange(false);
+      toast.success('Colaborador eliminado exitosamente');
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -74,7 +85,7 @@ export function DeleteEmployeeDialog({
           </Button>
           <Button
             variant='destructive'
-            onClick={handleConfirm}
+            onClick={handleDelete}
           >
             Eliminar
           </Button>

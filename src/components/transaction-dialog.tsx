@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Transaction } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +24,7 @@ import {
   departments,
   categories,
   providers,
+  employees,
 } from '@/lib/data';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -60,6 +63,13 @@ interface TransactionDialogProps {
   onSubmit: (transaction: Transaction) => void;
 }
 
+interface Employee {
+  id: string;
+  first_name: string;
+  last_name: string;
+  department_id?: string;
+}
+
 export function TransactionDialog({
   open,
   onOpenChange,
@@ -88,8 +98,9 @@ export function TransactionDialog({
       return initialFormData;
     });
 
-  // Get employees for the selected department
-  const departmentEmployees = [];
+  const departmentEmployees = employees.filter(
+    (e) => e.department_id === formData.department_id
+  );
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -131,7 +142,7 @@ export function TransactionDialog({
     const selectedDepartment = departments.find(
       (d) => d.id === formData.department_id
     );
-    const selectedEmployee = [].find(
+    const selectedEmployee = departmentEmployees.find(
       (e) => e.id === formData.employee_id
     );
     const selectedProvider = providers.find(
@@ -325,7 +336,7 @@ export function TransactionDialog({
                 />
               </SelectTrigger>
               <SelectContent>
-                {[].map((employee) => (
+                {departmentEmployees.map((employee) => (
                   <SelectItem
                     key={employee.id}
                     value={employee.id}

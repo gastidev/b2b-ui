@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -46,10 +46,10 @@ import { useCreateCategory } from './hooks/mutations/use-create-category';
 import { useUpdateCategory } from './hooks/mutations/use-update-category';
 import { useDeleteCategory } from './hooks/mutations/use-delete-category';
 import { useCreateSubcategory } from './hooks/mutations/use-create-subcategory';
+import { Category } from './domain/types';
 import {
-  Category,
   CreateCategoryDTO,
-  Subcategory,
+  UpdateCategoryDTO,
 } from './domain/types/category';
 
 // Lista de emojis comunes para categorías corporativas
@@ -80,9 +80,8 @@ const emojiList = [
   { name: 'Innovación', emoji: '🚀' },
 ];
 
-type CategoryFormData = CreateCategoryDTO;
-
-const initialCategoryFormData: CategoryFormData = {
+const initialCategoryFormData: CreateCategoryDTO = {
+  company_id: '',
   name: '',
   description: '',
   icon: '',
@@ -99,7 +98,7 @@ export function CategoriesPage() {
   const [showIconPicker, setShowIconPicker] =
     useState(false);
   const [categoryFormData, setCategoryFormData] =
-    useState<CategoryFormData>(initialCategoryFormData);
+    useState<CreateCategoryDTO>(initialCategoryFormData);
   const [selectedCategory, setSelectedCategory] =
     useState<Category | null>(null);
   const [expandedCategories, setExpandedCategories] =
@@ -128,10 +127,10 @@ export function CategoriesPage() {
     if (!searchTerm) return data.categories;
 
     const searchLower = searchTerm.toLowerCase();
-    return data.categories.filter(
-      (category: Category) =>
+    return (data.categories || []).filter(
+      (category) =>
         category.name.toLowerCase().includes(searchLower) ||
-        category.subcategories.some((sub) =>
+        (category.subcategories || []).some((sub) =>
           sub.name.toLowerCase().includes(searchLower)
         )
     );
@@ -174,10 +173,17 @@ export function CategoriesPage() {
   const handleEditCategory = () => {
     if (!selectedCategory) return;
 
+    const updateData: UpdateCategoryDTO = {
+      name: categoryFormData.name,
+      description: categoryFormData.description,
+      icon: categoryFormData.icon,
+      color: categoryFormData.color,
+    };
+
     updateCategoryMutation.mutate(
       {
         id: selectedCategory.id,
-        category: categoryFormData,
+        category: updateData,
       },
       {
         onSuccess: () => {
@@ -440,156 +446,152 @@ export function CategoriesPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredCategories.map(
-                (category: Category) => (
-                  <>
-                    <TableRow
-                      key={category.id}
-                      className='cursor-pointer hover:bg-muted/50'
-                      onClick={() =>
-                        toggleCategory(category.id)
-                      }
-                    >
-                      <TableCell>
-                        <div className='flex items-center gap-2'>
-                          {expandedCategories[
-                            category.id
-                          ] ? (
-                            <ChevronDown className='h-4 w-4' />
-                          ) : (
-                            <ChevronRight className='h-4 w-4' />
-                          )}
-                          <span className='text-2xl'>
-                            {category.icon}
-                          </span>
-                          <span>{category.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {category.description}
-                      </TableCell>
-                      <TableCell>
+              filteredCategories.map((category) => (
+                <React.Fragment key={category.id}>
+                  <TableRow
+                    className='cursor-pointer hover:bg-muted/50'
+                    onClick={() =>
+                      toggleCategory(category.id)
+                    }
+                  >
+                    <TableCell>
+                      <div className='flex items-center gap-2'>
+                        {expandedCategories[category.id] ? (
+                          <ChevronDown className='h-4 w-4' />
+                        ) : (
+                          <ChevronRight className='h-4 w-4' />
+                        )}
                         <span className='text-2xl'>
-                          {category.icon}
+                          {category.icon || ''}
                         </span>
-                      </TableCell>
-                      <TableCell>
-                        {category.color && (
-                          <div
-                            className='w-6 h-6 rounded'
-                            style={{
-                              backgroundColor:
-                                category.color,
-                            }}
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className='flex space-x-2'>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCategory(category);
-                              setCategoryFormData({
-                                name: category.name,
-                                description:
-                                  category.description,
-                                icon: category.icon,
-                                color: category.color,
-                              });
-                              setShowEditDialog(true);
-                            }}
+                        <span>{category.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {category.description || ''}
+                    </TableCell>
+                    <TableCell>
+                      <span className='text-2xl'>
+                        {category.icon || ''}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {category.color && (
+                        <div
+                          className='w-6 h-6 rounded'
+                          style={{
+                            backgroundColor: category.color,
+                          }}
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className='flex space-x-2'>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedCategory(category);
+                            setCategoryFormData({
+                              company_id: category.company_id,
+                              name: category.name,
+                              description:
+                                category.description || '',
+                              icon: category.icon,
+                              color: category.color || '',
+                            });
+                            setShowEditDialog(true);
+                          }}
+                        >
+                          <Pencil className='h-4 w-4' />
+                        </Button>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedCategory(
+                              category as Category
+                            );
+                            setShowDeleteDialog(true);
+                          }}
+                        >
+                          <Trash2 className='h-4 w-4' />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {expandedCategories[category.id] && (
+                    <>
+                      {(category.subcategories || []).map(
+                        (subcategory) => (
+                          <TableRow
+                            key={subcategory.id}
+                            className='bg-muted/50'
                           >
-                            <Pencil className='h-4 w-4' />
-                          </Button>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCategory(category);
-                              setShowDeleteDialog(true);
-                            }}
-                          >
-                            <Trash2 className='h-4 w-4' />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    {expandedCategories[category.id] && (
-                      <>
-                        {category.subcategories?.map(
-                          (subcategory: Subcategory) => (
-                            <TableRow
-                              key={subcategory.id}
-                              className='bg-muted/50'
+                            <TableCell>
+                              <div className='flex items-center gap-2 pl-8'>
+                                {subcategory.name}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {subcategory.name}
+                            </TableCell>
+                            <TableCell />
+                            <TableCell />
+                            <TableCell>
+                              <div className='flex space-x-2'>
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                >
+                                  <Pencil className='h-4 w-4' />
+                                </Button>
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                >
+                                  <Trash2 className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )}
+                      <TableRow className='bg-muted/50 border-t border-background'>
+                        <TableCell colSpan={5}>
+                          <div className='flex justify-center py-2'>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='text-muted-foreground hover:text-foreground'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCategory(
+                                  category as Category
+                                );
+                                setSubcategoryFormData(
+                                  (prev) => ({
+                                    ...prev,
+                                    categoryId: category.id,
+                                  })
+                                );
+                                setShowCreateSubcategoryDialog(
+                                  true
+                                );
+                              }}
                             >
-                              <TableCell>
-                                <div className='flex items-center gap-2 pl-8'>
-                                  {subcategory.name}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {subcategory.description}
-                              </TableCell>
-                              <TableCell />
-                              <TableCell />
-                              <TableCell>
-                                <div className='flex space-x-2'>
-                                  <Button
-                                    variant='ghost'
-                                    size='icon'
-                                  >
-                                    <Pencil className='h-4 w-4' />
-                                  </Button>
-                                  <Button
-                                    variant='ghost'
-                                    size='icon'
-                                  >
-                                    <Trash2 className='h-4 w-4' />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          )
-                        )}
-                        <TableRow className='bg-muted/50 border-t border-background'>
-                          <TableCell colSpan={5}>
-                            <div className='flex justify-center py-2'>
-                              <Button
-                                variant='ghost'
-                                size='sm'
-                                className='text-muted-foreground hover:text-foreground'
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedCategory(
-                                    category
-                                  );
-                                  setSubcategoryFormData(
-                                    (prev) => ({
-                                      ...prev,
-                                      categoryId:
-                                        category.id,
-                                    })
-                                  );
-                                  setShowCreateSubcategoryDialog(
-                                    true
-                                  );
-                                }}
-                              >
-                                <Plus className='mr-2 h-4 w-4' />
-                                Agregar subcategoría
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      </>
-                    )}
-                  </>
-                )
-              )
+                              <Plus className='mr-2 h-4 w-4' />
+                              Agregar subcategoría
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  )}
+                </React.Fragment>
+              ))
             )}
           </TableBody>
         </Table>

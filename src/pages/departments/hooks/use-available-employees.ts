@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/pages/auth/store/auth.store';
 import { gastiClient } from '@/lib/api';
-import { Employee } from '@/lib/data';
 
 export function useAvailableEmployees() {
   const { user } = useAuthStore();

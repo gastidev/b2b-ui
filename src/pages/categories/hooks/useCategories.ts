@@ -3,8 +3,17 @@ import {
   Category,
   CategoryFormData,
   SubcategoryFormData,
+  Subcategory,
 } from '../domain/types';
-import { categoriesService } from '../services/categories.service';
+import {
+  getCategories,
+  createCategory as createCategoryService,
+  updateCategory as updateCategoryService,
+  deleteCategory as deleteCategoryService,
+  createSubcategory as createSubcategoryService,
+  updateSubcategory as updateSubcategoryService,
+  deleteSubcategory as deleteSubcategoryService,
+} from '../services/get-categories';
 import { toast } from 'sonner';
 
 export const useCategories = (companyId: string) => {
@@ -17,7 +26,7 @@ export const useCategories = (companyId: string) => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const data = await categoriesService.getCategories();
+      const data = await getCategories();
       setCategories(data);
     } catch (err) {
       setError(err as Error);
@@ -31,11 +40,10 @@ export const useCategories = (companyId: string) => {
     categoryData: Omit<CategoryFormData, 'company_id'>
   ) => {
     try {
-      const newCategory =
-        await categoriesService.createCategory({
-          ...categoryData,
-          company_id: companyId,
-        });
+      const newCategory = await createCategoryService({
+        ...categoryData,
+        company_id: companyId,
+      });
       setCategories((prev) => [
         ...prev,
         { ...newCategory, subcategories: [] },
@@ -53,11 +61,10 @@ export const useCategories = (companyId: string) => {
     category: Partial<CategoryFormData>
   ) => {
     try {
-      const updatedCategory =
-        await categoriesService.updateCategory(
-          id,
-          category
-        );
+      const updatedCategory = await updateCategoryService(
+        id,
+        category
+      );
       setCategories((prev) =>
         prev.map((cat) =>
           cat.id === id
@@ -75,7 +82,7 @@ export const useCategories = (companyId: string) => {
 
   const deleteCategory = async (id: string) => {
     try {
-      await categoriesService.deleteCategory(id);
+      await deleteCategoryService(id);
       setCategories((prev) =>
         prev.filter((cat) => cat.id !== id)
       );
@@ -94,14 +101,13 @@ export const useCategories = (companyId: string) => {
     >
   ) => {
     try {
-      const newSubcategory =
-        await categoriesService.createSubcategory(
-          categoryId,
-          {
-            ...subcategoryData,
-            category_id: categoryId,
-          }
-        );
+      const newSubcategory = await createSubcategoryService(
+        categoryId,
+        {
+          ...subcategoryData,
+          category_id: categoryId,
+        }
+      );
       setCategories((prev) =>
         prev.map((cat) =>
           cat.id === categoryId
@@ -109,7 +115,7 @@ export const useCategories = (companyId: string) => {
                 ...cat,
                 subcategories: [
                   ...cat.subcategories,
-                  newSubcategory,
+                  newSubcategory as unknown as Subcategory,
                 ],
               }
             : cat
@@ -130,7 +136,7 @@ export const useCategories = (companyId: string) => {
   ) => {
     try {
       const updatedSubcategory =
-        await categoriesService.updateSubcategory(
+        await updateSubcategoryService(
           categoryId,
           subcategoryId,
           subcategory
@@ -165,7 +171,7 @@ export const useCategories = (companyId: string) => {
     subcategoryId: string
   ) => {
     try {
-      await categoriesService.deleteSubcategory(
+      await deleteSubcategoryService(
         categoryId,
         subcategoryId
       );

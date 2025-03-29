@@ -1,32 +1,34 @@
+import { gastiClient } from '@/lib/api';
 import { Transaction } from '../domain/types';
-import { transactions as mockTransactions } from '@/lib/data';
 
-class TransactionsService {
-  getTransactions(): Transaction[] {
-    // Por ahora usamos datos mock, pero aquí se conectaría con la API
-    return mockTransactions;
-  }
+export const transactionsService = {
+  async getTransactions(): Promise<Transaction[]> {
+    const { data } = await gastiClient.get<{
+      data: Transaction[];
+    }>('/transactions');
+    return data.data;
+  },
 
   async createTransaction(
     transaction: Omit<Transaction, 'id'>
   ): Promise<Transaction> {
-    // Aquí iría la lógica para crear una transacción en el backend
-    throw new Error('Not implemented');
-  }
+    const { data } = await gastiClient.post<{
+      data: Transaction;
+    }>('/transactions', transaction);
+    return data.data;
+  },
 
   async updateTransaction(
     id: string,
     transaction: Partial<Transaction>
   ): Promise<Transaction> {
-    // Aquí iría la lógica para actualizar una transacción en el backend
-    throw new Error('Not implemented');
-  }
+    const { data } = await gastiClient.patch<{
+      data: Transaction;
+    }>(`/transactions/${id}`, transaction);
+    return data.data;
+  },
 
   async deleteTransaction(id: string): Promise<void> {
-    // Aquí iría la lógica para eliminar una transacción en el backend
-    throw new Error('Not implemented');
-  }
-}
-
-export const transactionsService =
-  new TransactionsService();
+    await gastiClient.delete(`/transactions/${id}`);
+  },
+};

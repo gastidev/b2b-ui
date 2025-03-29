@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { FilterGroup } from '../domain/types';
-import { transactionsService } from '../services/transactions.service';
+import { FilterGroup, Transaction } from '../domain/types';
 
 export function useTransactions() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -9,8 +8,7 @@ export function useTransactions() {
   const [showFilters, setShowFilters] = useState(false);
   const [pageSize, setPageSize] = useState<string>('10');
 
-  const transactions =
-    transactionsService.getTransactions();
+  const transactions: Transaction[] = [];
 
   return {
     transactions,
